@@ -28,3 +28,24 @@ Logger.Log(Logger.LogLevel.Warning, "This is a warning message.");
 
 // 记录错误日志
 Logger.Log(Logger.LogLevel.Error, "This is an error message.");
+```
+
+--- 
+
+本项目使用JetBrains Rider进行开发，IDE License由JetBrains 开源项目申请提供
+
+<p>
+<a href="https://www.jetbrains.com/"/>
+<img src ="jb_beam.png" align="middle" width=25%/>
+</a>
+<a href="https://www.jetbrains.com/rider/"/>
+<img src ="Rider.png" align="middle" width=25%/>
+</a>
+<a href="https://www.jetbrains.com/lp/rider-unreal/"/>
+<img src ="Rider_icon.png" align="middle" width=25%/>
+</a>
+</p>
+
+<font size = 5> [**JetBrains 开源项目支持申请链接**](https://www.jetbrains.com/lp/rider-unreal/)</font>
+
+推荐使用Rider进行Unity开发。
