@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 定义日志宏
+
+using System;
 
 namespace LogSystem
 {
@@ -7,43 +9,12 @@ namespace LogSystem
         // 日志等级枚举
         public enum LogLevel
         {
-            /// <summary>
-            /// Always prints a fatal error to console (and log file) and crashes (even if logging is disabled)
-            /// </summary>
             Fatal,
-
-            /// <summary>
-            /// Prints an error to console (and log file).
-            /// Commandlets and the editor collect and report errors. Error messages result in commandlet failure.
-            /// </summary>
             Error,
-
-            /// <summary>
-            /// Prints a warning to console (and log file).
-            /// Commandlets and the editor collect and report warnings. Warnings can be treated as an error.
-            /// </summary>
             Warning,
-
-            /// <summary>
-            /// Prints a message to console (and log file)
-            /// </summary>
             Display,
-
-            /// <summary>
-            /// Prints a message to a log file (does not print to console)
-            /// </summary>
             Log,
-
-            /// <summary>
-            /// Prints a verbose message to a log file (if Verbose logging is enabled for the given category,
-            /// usually used for detailed logging)
-            /// </summary>
             Verbose,
-
-            /// <summary>
-            /// Prints a verbose message to a log file (if VeryVerbose logging is enabled,
-            /// usually used for detailed logging that would otherwise spam output)
-            /// </summary>
             VeryVerbose
         }
 
@@ -57,6 +28,7 @@ namespace LogSystem
         }
 
         // 写入日志
+        // ReSharper disable once MemberCanBePrivate.Global
         public static void Log(LogLevel level, string message, params object[] args)
         {
             string formattedMessage = string.Format(message, args);
@@ -67,6 +39,21 @@ namespace LogSystem
                 // Crash the application
                 throw new FatalException(formattedMessage);
             }
+        }
+
+        public static void LogDisplay(string message, params object[] args)
+        {
+            Log(LogLevel.Display, message, args);
+        }
+
+        public static void LogWarning(string message, params object[] args)
+        {
+            Log(LogLevel.Warning, message, args);
+        }
+
+        public static void LogError(string message, params object[] args)
+        {
+            Log(LogLevel.Error, message, args);
         }
     }
 

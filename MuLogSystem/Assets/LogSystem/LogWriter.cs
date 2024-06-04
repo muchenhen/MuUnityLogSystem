@@ -25,7 +25,18 @@ namespace LogSystem
 
             // 根据编译符号控制日志输出
 #if UNITY_EDITOR
-            Debug.Log(logEntry);
+            switch (level)
+            {
+                case Logger.LogLevel.Display:
+                    Debug.Log(logEntry);
+                    break;
+                case Logger.LogLevel.Warning:
+                    Debug.LogWarning(logEntry);
+                    break;
+                case Logger.LogLevel.Error:
+                    Debug.LogError(logEntry);
+                    break;
+            }
 #elif DEVELOPMENT_BUILD
         if (level != Logger.LogLevel.Log)
         {
@@ -33,6 +44,7 @@ namespace LogSystem
         }
 #endif
 
+         
             _logFileWriter.WriteLine(logEntry);
             _logFileWriter.Flush();
         }
@@ -63,6 +75,8 @@ namespace LogSystem
             {
                 case Logger.LogLevel.Log:
                     return "Log";
+                case Logger.LogLevel.Display:
+                    return "Display";
                 case Logger.LogLevel.Warning:
                     return "Warning";
                 case Logger.LogLevel.Error:
