@@ -4,13 +4,17 @@ Unity Log System是一个用于Unity游戏引擎的 ~~高性能、可配置（�
 
 ## 特点
 
-以下目前一个都没有：
+已完成的部分：
 
-- 支持Log、Warning、Error三个基本的日志等级，并提供了着色功能以便于区分。
+- 区分Log级别
+- 通过设置指定当前输出的Log级别
+- 将log写入文件，包含时间戳和当前log级别，并且会在创建新log的时候备份旧文件
+- 对常用的Log级别进行了函数包装，减轻使用负担
+
+进行中的目标：
+
 - 根据游戏的构建版本（Editor、Development、Release）控制日志的输出。
-- 将日志写入文件，包含时间戳和格式化的日志条目。
-- 高性能的日志写入，避免对游戏性能产生影响。
-- 易于集成和使用，只需简单的API调用即可记录日志。
+- 日志写入的性能测试
 
 <!-- ## 安装
 
@@ -20,14 +24,12 @@ Unity Log System是一个用于Unity游戏引擎的 ~~高性能、可配置（�
 ## 使用
 
 ```csharp
-// 记录一般日志
-Logger.Log(Logger.LogLevel.Log, "This is a log message.");
-
-// 记录警告日志
-Logger.Log(Logger.LogLevel.Warning, "This is a warning message.");
-
-// 记录错误日志
-Logger.Log(Logger.LogLevel.Error, "This is an error message.");
+// Display 日志
+Logger.LogDisplay("This is a display log message.");
+// Warning 日志
+Logger.LogWarning("This is a warning log message.");
+// Error 日志
+Logger.LogError("This is an error log message.");
 ```
 
 --- 
