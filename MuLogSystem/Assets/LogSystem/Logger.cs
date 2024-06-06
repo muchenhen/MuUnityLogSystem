@@ -23,8 +23,12 @@ namespace LogSystem
         private static LogWriter _logWriter;
 
         // 日志输出等级
-        private static LogLevel LogOutputLevel { get; set; } = LogLevel.Display;
+        // ReSharper disable once MemberCanBePrivate.Global
+        public static LogLevel LogOutputLevel { get; private set; } = LogLevel.Display;
 
+        // Shipping日志开关
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        public static bool OpenShippingLog { get; private set; }
 
         // 初始化日志系统
         public static void Initialize()
@@ -40,6 +44,7 @@ namespace LogSystem
                 if (settings != null)
                 {
                     LogOutputLevel = settings.logOutputLevel;
+                    OpenShippingLog = settings.openShippingLog;
                 }
             }
         }
@@ -80,18 +85,18 @@ namespace LogSystem
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
+        [InitializeOnLoadMethod]
         private static void OnInitializeOnLoad()
         {
-            UnityEditor.BuildPlayerWindow.RegisterBuildPlayerHandler(OnBuildPlayer);
+            BuildPlayerWindow.RegisterBuildPlayerHandler(OnBuildPlayer);
         }
 
         private static void OnBuildPlayer(BuildPlayerOptions options)
         {
-            string[] guids = UnityEditor.AssetDatabase.FindAssets("t:LogSettings");
+            string[] guids = AssetDatabase.FindAssets("t:LogSettings");
             if (guids.Length > 0)
             {
-                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
                 options.assetBundleManifestPath = path;
             }
         }

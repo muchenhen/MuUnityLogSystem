@@ -6,5 +6,7 @@ namespace LogSystem
     public class LogSettings : ScriptableObject
     {
         public Logger.LogLevel logOutputLevel = Logger.LogLevel.Display;
+        
+        public bool openShippingLog = false;
     }
 }

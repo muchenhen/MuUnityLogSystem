@@ -30,6 +30,7 @@ namespace LogSystem
         public override void OnGUI(string searchContext)
         {
             EditorGUILayout.PropertyField(_settingsSerializedObject.FindProperty("logOutputLevel"));
+            EditorGUILayout.PropertyField(_settingsSerializedObject.FindProperty("openShippingLog"));
             _settingsSerializedObject.ApplyModifiedProperties();
         }
 

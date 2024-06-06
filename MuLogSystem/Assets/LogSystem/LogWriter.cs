@@ -38,10 +38,15 @@ namespace LogSystem
                     break;
             }
 #elif DEVELOPMENT_BUILD
-        if (level != Logger.LogLevel.Log)
-        {
-            UnityEngine.Debug.Log(logEntry);
-        }
+            if (level != Logger.LogLevel.Log)
+            {
+                UnityEngine.Debug.Log(logEntry);
+            }
+#els
+            if (Logger.OpenShippingLog && level >= Logger.LogOutputLevel)
+            {
+                UnityEngine.Debug.Log(logEntry);
+            }
 #endif
 
          
