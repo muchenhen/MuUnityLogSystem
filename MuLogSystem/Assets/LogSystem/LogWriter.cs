@@ -42,7 +42,7 @@ namespace LogSystem
             {
                 UnityEngine.Debug.Log(logEntry);
             }
-#els
+#else
             if (Logger.OpenShippingLog && level >= Logger.LogOutputLevel)
             {
                 UnityEngine.Debug.Log(logEntry);
