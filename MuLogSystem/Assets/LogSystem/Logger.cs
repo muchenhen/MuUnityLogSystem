@@ -1,59 +1,38 @@
-﻿// 定义日志宏
-
-using System;
-using UnityEditor;
+﻿using System;
 
 namespace LogSystem
 {
+    public enum LogLevel
+    {
+        Fatal,
+        Error,
+        Warning,
+        Display,
+        Log,
+        Verbose,
+        VeryVerbose
+    }
+
     public static class Logger
     {
-        // 日志等级枚举
-        public enum LogLevel
-        {
-            Fatal,
-            Error,
-            Warning,
-            Display,
-            Log,
-            Verbose,
-            VeryVerbose
-        }
-
-        // 日志写入器
         private static LogWriter _logWriter;
 
-        // 日志输出等级
         // ReSharper disable once MemberCanBePrivate.Global
         public static LogLevel LogOutputLevel { get; private set; } = LogLevel.Display;
 
-        // Shipping日志开关
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public static bool OpenShippingLog { get; private set; }
 
-        // 初始化日志系统
         public static void Initialize()
         {
             _logWriter = new LogWriter();
-
-            // 加载LogSettings资源文件
-            string[] guids = AssetDatabase.FindAssets("t:LogSettings");
-            if (guids.Length > 0)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                LogSettings settings = AssetDatabase.LoadAssetAtPath<LogSettings>(path);
-                if (settings != null)
-                {
-                    LogOutputLevel = settings.logOutputLevel;
-                    OpenShippingLog = settings.openShippingLog;
-                }
-            }
+            LogOutputLevel = LogSettings.Instance.logOutputLevel;
+            OpenShippingLog = LogSettings.Instance.openShippingLog;
         }
 
-        // 写入日志
         // ReSharper disable once MemberCanBePrivate.Global
         public static void Log(LogLevel level, string message, params object[] args)
         {
-            // 只有当日志级别高于指定的输出级别时才进行输出
             if (level > LogOutputLevel)
             {
                 return;
@@ -64,7 +43,6 @@ namespace LogSystem
 
             if (level == LogLevel.Fatal)
             {
-                // Crash the application
                 throw new FatalException(formattedMessage);
             }
         }
@@ -83,24 +61,6 @@ namespace LogSystem
         {
             Log(LogLevel.Error, message, args);
         }
-
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-        private static void OnInitializeOnLoad()
-        {
-            BuildPlayerWindow.RegisterBuildPlayerHandler(OnBuildPlayer);
-        }
-
-        private static void OnBuildPlayer(BuildPlayerOptions options)
-        {
-            string[] guids = AssetDatabase.FindAssets("t:LogSettings");
-            if (guids.Length > 0)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                options.assetBundleManifestPath = path;
-            }
-        }
-#endif
     }
 
     public class FatalException : Exception

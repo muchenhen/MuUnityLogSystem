@@ -18,22 +18,21 @@ namespace LogSystem
             _logFileWriter = new StreamWriter(logFilePath, true);
         }
 
-        public void WriteLog(Logger.LogLevel level, string message)
+        public void WriteLog(LogLevel level, string message)
         {
             string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
             string logEntry = $"[{timestamp}][{GetLogLevelString(level)}] {message}";
 
-            // 根据编译符号控制日志输出
 #if UNITY_EDITOR
             switch (level)
             {
-                case Logger.LogLevel.Display:
+                case LogLevel.Display:
                     Debug.Log(logEntry);
                     break;
-                case Logger.LogLevel.Warning:
+                case LogLevel.Warning:
                     Debug.LogWarning(logEntry);
                     break;
-                case Logger.LogLevel.Error:
+                case LogLevel.Error:
                     Debug.LogError(logEntry);
                     break;
             }
@@ -74,17 +73,17 @@ namespace LogSystem
             }
         }
 
-        private string GetLogLevelString(Logger.LogLevel level)
+        private string GetLogLevelString(LogLevel level)
         {
             switch (level)
             {
-                case Logger.LogLevel.Log:
+                case LogLevel.Log:
                     return "Log";
-                case Logger.LogLevel.Display:
+                case LogLevel.Display:
                     return "Display";
-                case Logger.LogLevel.Warning:
+                case LogLevel.Warning:
                     return "Warning";
-                case Logger.LogLevel.Error:
+                case LogLevel.Error:
                     return "Error";
                 default:
                     return "Unknown";
