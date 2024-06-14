@@ -64,12 +64,25 @@ namespace LogSystem
 
         private void BackupExistingLogFile(string logFilePath)
         {
+            int backupMaxCount = LogSettings.Instance.logFileBackupMaxCount;
             if (File.Exists(logFilePath))
             {
                 string backupFileName = string.Format(LogBackupFileNameFormat, Application.productName, DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss"));
                 string backupFilePath = Path.Combine(Path.GetDirectoryName(logFilePath) ?? string.Empty, backupFileName);
                 File.Copy(logFilePath, backupFilePath, true);
                 File.Delete(logFilePath);
+
+                string[] backupFiles = Directory.GetFiles(Path.GetDirectoryName(logFilePath) ?? string.Empty, $"{Application.productName}-backup-*.log");
+
+                Array.Sort(backupFiles, (x, y) => File.GetCreationTime(x).CompareTo(File.GetCreationTime(y)));
+
+                if (backupFiles.Length > backupMaxCount)
+                {
+                    for (int i = 0; i < backupFiles.Length - backupMaxCount; i++)
+                    {
+                        File.Delete(backupFiles[i]);
+                    }
+                }
             }
         }
 
