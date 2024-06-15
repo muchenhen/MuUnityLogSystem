@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Logger = LogSystem.Logger;
 
@@ -7,13 +8,16 @@ public class GameInstance : MonoBehaviour
     void Start()
     {
         Logger.Initialize();
-        Logger.LogDisplay("This is a display log message.");
-        Logger.LogWarning("This is a warning log message.");
-        Logger.LogError("This is an error log message.");
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnBeginTestClick()
     {
+        LoggerPerformanceTest test = gameObject.AddComponent<LoggerPerformanceTest>();
+        test.TestLogWritePerformance();
+    }
+
+    public void OnApplicationQuit()
+    {
+        Logger.Uninitialize();
     }
 }

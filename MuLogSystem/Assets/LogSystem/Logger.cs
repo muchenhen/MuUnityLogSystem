@@ -25,9 +25,21 @@ namespace LogSystem
 
         public static void Initialize()
         {
-            _logWriter = new LogWriter();
-            LogOutputLevel = LogSettings.Instance.logOutputLevel;
-            OpenShippingLog = LogSettings.Instance.openShippingLog;
+            if (_logWriter == null)
+            {
+                _logWriter = new LogWriter();
+                LogOutputLevel = LogSettings.Instance.logOutputLevel;
+                OpenShippingLog = LogSettings.Instance.openShippingLog;
+            }
+        }
+        
+        public static void Uninitialize()
+        {
+            if (_logWriter != null)
+            {
+                _logWriter.Dispose();
+                _logWriter = null;
+            }
         }
 
         // ReSharper disable once MemberCanBePrivate.Global

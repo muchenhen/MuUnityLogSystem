@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace LogSystem
@@ -10,6 +12,9 @@ namespace LogSystem
         private const string LogBackupFileNameFormat = "{0}-backup-{1}.log";
 
         private StreamWriter _logFileWriter;
+
+        private readonly StringBuilder _logBuffer = new StringBuilder();
+        private const int BufferSize = 1024; // 缓冲区大小,可根据需要调整
 
         public LogWriter()
         {
@@ -22,6 +27,12 @@ namespace LogSystem
         {
             string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
             string logEntry = $"[{timestamp}][{GetLogLevelString(level)}] {message}";
+
+            lock (_logBuffer)
+            {
+                _logBuffer.AppendLine(logEntry);
+            }
+
 
 #if UNITY_EDITOR
             switch (level)
@@ -48,9 +59,48 @@ namespace LogSystem
             }
 #endif
 
-         
-            _logFileWriter.WriteLine(logEntry);
+            if (_logBuffer.Length >= BufferSize)
+            {
+                FlushLogBuffer();
+            }
+        }
+        
+        public void Dispose()
+        {
+            string logContent;
+
+            lock (_logBuffer)
+            {
+                logContent = _logBuffer.ToString();
+                _logBuffer.Clear();
+            }
+            _logFileWriter.Write(logContent);
             _logFileWriter.Flush();
+            _logFileWriter.Close();
+        }
+
+        private void FlushLogBuffer()
+        {
+            string logContent;
+
+            lock (_logBuffer)
+            {
+                logContent = _logBuffer.ToString();
+                _logBuffer.Clear();
+            }
+
+#if !UNITY_WEBGL
+            // 在支持多线程的平台上使用异步写入
+            Task.Run(() =>
+            {
+                _logFileWriter.Write(logContent);
+                _logFileWriter.Flush();
+            });
+#else
+            // 在 WebGL 和编辑器模式下使用同步写入
+            _logFileWriter.Write(logContent);
+            _logFileWriter.Flush();
+#endif
         }
 
         private string GetLogFilePath()
