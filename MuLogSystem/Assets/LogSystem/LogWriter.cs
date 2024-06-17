@@ -1,38 +1,49 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using UnityEngine;
 
 namespace LogSystem
 {
-    public class LogWriter
+    public class LogWriter : IDisposable
     {
         private const string LogFileNameFormat = "{0}.log";
         private const string LogBackupFileNameFormat = "{0}-backup-{1}.log";
 
         private StreamWriter _logFileWriter;
-
-        private readonly StringBuilder _logBuffer = new StringBuilder();
-        private const int BufferSize = 1024; // 缓冲区大小,可根据需要调整
+        private readonly ConcurrentQueue<string> _logQueue = new ConcurrentQueue<string>();
+        private readonly object _logQueueLock = new object();
+        private readonly Thread _logWriterThread;
+        private bool _isRunning = true;
 
         public LogWriter()
         {
             string logFilePath = GetLogFilePath();
             BackupExistingLogFile(logFilePath);
             _logFileWriter = new StreamWriter(logFilePath, true);
+
+            _logWriterThread = new Thread(LogWriterThread);
+            _logWriterThread.IsBackground = true;
+            _logWriterThread.Start();
         }
 
         public void WriteLog(LogLevel level, string message)
         {
-            string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
-            string logEntry = $"[{timestamp}][{GetLogLevelString(level)}] {message}";
+            StringBuilder logMessageBuilder = new StringBuilder();
 
-            lock (_logBuffer)
-            {
-                _logBuffer.AppendLine(logEntry);
-            }
+            // 使用 StringBuilder 构建日志消息
+            logMessageBuilder.Append("[");
+            logMessageBuilder.Append(DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff"));
+            logMessageBuilder.Append("][");
+            logMessageBuilder.Append(GetLogLevelString(level));
+            logMessageBuilder.Append("] ");
+            logMessageBuilder.Append(message);
 
+            string logEntry = logMessageBuilder.ToString();
+            _logQueue.Enqueue(logEntry);
 
 #if UNITY_EDITOR
             switch (level)
@@ -58,49 +69,29 @@ namespace LogSystem
                 UnityEngine.Debug.Log(logEntry);
             }
 #endif
-
-            if (_logBuffer.Length >= BufferSize)
-            {
-                FlushLogBuffer();
-            }
         }
-        
+
         public void Dispose()
         {
-            string logContent;
-
-            lock (_logBuffer)
-            {
-                logContent = _logBuffer.ToString();
-                _logBuffer.Clear();
-            }
-            _logFileWriter.Write(logContent);
-            _logFileWriter.Flush();
+            _isRunning = false;
+            _logWriterThread.Join();
             _logFileWriter.Close();
         }
 
-        private void FlushLogBuffer()
+        private void LogWriterThread()
         {
-            string logContent;
-
-            lock (_logBuffer)
+            while (_isRunning)
             {
-                logContent = _logBuffer.ToString();
-                _logBuffer.Clear();
+                if (_logQueue.TryDequeue(out string logEntry))
+                {
+                    _logFileWriter.Write(logEntry + "\n");
+                    _logFileWriter.Flush();
+                }
+                else
+                {
+                    Thread.Sleep(100);
+                }
             }
-
-#if !UNITY_WEBGL
-            // 在支持多线程的平台上使用异步写入
-            Task.Run(() =>
-            {
-                _logFileWriter.Write(logContent);
-                _logFileWriter.Flush();
-            });
-#else
-            // 在 WebGL 和编辑器模式下使用同步写入
-            _logFileWriter.Write(logContent);
-            _logFileWriter.Flush();
-#endif
         }
 
         private string GetLogFilePath()
