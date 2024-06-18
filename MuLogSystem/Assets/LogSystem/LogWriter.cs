@@ -19,11 +19,14 @@ namespace LogSystem
         private readonly Thread _logWriterThread;
         private bool _isRunning = true;
 
+        private readonly BufferedStream _logBufferedStream;
+
+
         public LogWriter()
         {
             string logFilePath = GetLogFilePath();
             BackupExistingLogFile(logFilePath);
-            _logFileWriter = new StreamWriter(logFilePath, true);
+            _logFileWriter = new StreamWriter(new BufferedStream(File.Open(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read)), Encoding.UTF8);
 
             _logWriterThread = new Thread(LogWriterThread);
             _logWriterThread.IsBackground = true;
