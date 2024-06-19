@@ -35,17 +35,9 @@ namespace LogSystem
 
         public void WriteLog(LogLevel level, string message)
         {
-            StringBuilder logMessageBuilder = new StringBuilder();
-
-            // 使用 StringBuilder 构建日志消息
-            logMessageBuilder.Append("[");
-            logMessageBuilder.Append(DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff"));
-            logMessageBuilder.Append("][");
-            logMessageBuilder.Append(GetLogLevelString(level));
-            logMessageBuilder.Append("] ");
-            logMessageBuilder.Append(message);
-
-            string logEntry = logMessageBuilder.ToString();
+            string logLevelString = GetLogLevelString(level);
+            string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
+            string logEntry = $"[{timestamp}][{logLevelString}] {message}";
             _logQueue.Enqueue(logEntry);
 
 #if UNITY_EDITOR
