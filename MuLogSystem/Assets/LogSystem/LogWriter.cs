@@ -35,35 +35,7 @@ namespace LogSystem
 
         public void WriteLog(LogLevel level, string message)
         {
-            string logLevelString = GetLogLevelString(level);
-            string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
-            string logEntry = $"[{timestamp}][{logLevelString}] {message}";
-            _logQueue.Enqueue(logEntry);
-
-#if UNITY_EDITOR
-            switch (level)
-            {
-                case LogLevel.Display:
-                    Debug.Log(logEntry);
-                    break;
-                case LogLevel.Warning:
-                    Debug.LogWarning(logEntry);
-                    break;
-                case LogLevel.Error:
-                    Debug.LogError(logEntry);
-                    break;
-            }
-#elif DEVELOPMENT_BUILD
-            if (level != Logger.LogLevel.Log)
-            {
-                UnityEngine.Debug.Log(logEntry);
-            }
-#else
-            if (Logger.OpenShippingLog && level >= Logger.LogOutputLevel)
-            {
-                UnityEngine.Debug.Log(logEntry);
-            }
-#endif
+            _logQueue.Enqueue(message);
         }
 
         public void Dispose()
@@ -119,23 +91,6 @@ namespace LogSystem
                         File.Delete(backupFiles[i]);
                     }
                 }
-            }
-        }
-
-        private string GetLogLevelString(LogLevel level)
-        {
-            switch (level)
-            {
-                case LogLevel.Log:
-                    return "Log";
-                case LogLevel.Display:
-                    return "Display";
-                case LogLevel.Warning:
-                    return "Warning";
-                case LogLevel.Error:
-                    return "Error";
-                default:
-                    return "Unknown";
             }
         }
     }

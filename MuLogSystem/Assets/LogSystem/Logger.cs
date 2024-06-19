@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace LogSystem
 {
@@ -32,7 +33,7 @@ namespace LogSystem
                 OpenShippingLog = LogSettings.Instance.openShippingLog;
             }
         }
-        
+
         public static void Uninitialize()
         {
             if (_logWriter != null)
@@ -50,12 +51,56 @@ namespace LogSystem
                 return;
             }
 
-            string formattedMessage = string.Format(message, args);
-            _logWriter.WriteLog(level, formattedMessage);
+            message = string.Format(message, args);
+            string logLevelString = GetLogLevelString(level);
+            string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
+            message = $"[{timestamp}][{logLevelString}] {message}";
+            _logWriter.WriteLog(level, message);
+#if UNITY_EDITOR
+            switch (level)
+            {
+                case LogLevel.Display:
+                    Debug.Log(message);
+                    break;
+                case LogLevel.Warning:
+                    Debug.LogWarning(message);
+                    break;
+                case LogLevel.Error:
+                    Debug.LogError(message);
+                    break;
+            }
+#elif DEVELOPMENT_BUILD
+            if (level != Logger.LogLevel.Log)
+            {
+                UnityEngine.Debug.Log(logEntry);
+            }
+#else
+            if (Logger.OpenShippingLog && level >= Logger.LogOutputLevel)
+            {
+                UnityEngine.Debug.Log(logEntry);
+            }
+#endif
 
             if (level == LogLevel.Fatal)
             {
-                throw new FatalException(formattedMessage);
+                throw new FatalException(message);
+            }
+        }
+
+        private static string GetLogLevelString(LogLevel level)
+        {
+            switch (level)
+            {
+                case LogLevel.Log:
+                    return "Log";
+                case LogLevel.Display:
+                    return "Display";
+                case LogLevel.Warning:
+                    return "Warning";
+                case LogLevel.Error:
+                    return "Error";
+                default:
+                    return "Unknown";
             }
         }
 
