@@ -44,15 +44,25 @@ namespace LogSystem
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public static void Log(LogLevel level, string message, params object[] args)
+        public static void Log(LogLevel level, string message)
         {
             if (level > LogOutputLevel)
             {
                 return;
             }
 
-            message = string.Format(message, args);
-            string logLevelString = GetLogLevelString(level);
+            string logLevelString = level switch
+            {
+                LogLevel.Log => "Log",
+                LogLevel.Display => "Display",
+                LogLevel.Warning => "Warning",
+                LogLevel.Error => "Error",
+                LogLevel.Fatal => "Fatal",
+                LogLevel.Verbose => "Verbose",
+                LogLevel.VeryVerbose => "VeryVerbose",
+                _ => "Unknown"
+            };
+
             string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
             message = $"[{timestamp}][{logLevelString}] {message}";
             _logWriter.WriteLog(level, message);
@@ -67,6 +77,14 @@ namespace LogSystem
                     break;
                 case LogLevel.Error:
                     Debug.LogError(message);
+                    break;
+                case LogLevel.Fatal:
+                    break;
+                case LogLevel.Log:
+                    break;
+                case LogLevel.Verbose:
+                    break;
+                case LogLevel.VeryVerbose:
                     break;
             }
 #elif DEVELOPMENT_BUILD
@@ -87,36 +105,19 @@ namespace LogSystem
             }
         }
 
-        private static string GetLogLevelString(LogLevel level)
+        public static void LogDisplay(string message)
         {
-            switch (level)
-            {
-                case LogLevel.Log:
-                    return "Log";
-                case LogLevel.Display:
-                    return "Display";
-                case LogLevel.Warning:
-                    return "Warning";
-                case LogLevel.Error:
-                    return "Error";
-                default:
-                    return "Unknown";
-            }
+            Log(LogLevel.Display, message);
         }
 
-        public static void LogDisplay(string message, params object[] args)
+        public static void LogWarning(string message)
         {
-            Log(LogLevel.Display, message, args);
+            Log(LogLevel.Warning, message);
         }
 
-        public static void LogWarning(string message, params object[] args)
+        public static void LogError(string message)
         {
-            Log(LogLevel.Warning, message, args);
-        }
-
-        public static void LogError(string message, params object[] args)
-        {
-            Log(LogLevel.Error, message, args);
+            Log(LogLevel.Error, message);
         }
     }
 
