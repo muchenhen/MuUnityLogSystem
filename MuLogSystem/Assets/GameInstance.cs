@@ -9,15 +9,4 @@ public class GameInstance : MonoBehaviour
     {
         Logger.Initialize();
     }
-
-    public void OnBeginTestClick()
-    {
-        LoggerPerformanceTest test = gameObject.AddComponent<LoggerPerformanceTest>();
-        test.TestLogWritePerformance();
-    }
-
-    public void OnApplicationQuit()
-    {
-        Logger.Uninitialize();
-    }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
-using UnityEngine;
+using System.Diagnostics;
+using UnityEngine.Profiling;
+using Debug = UnityEngine.Debug;
 
 namespace LogSystem
 {
@@ -46,6 +48,8 @@ namespace LogSystem
         // ReSharper disable once MemberCanBePrivate.Global
         public static void Log(LogLevel level, string message)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             if (level > LogOutputLevel)
             {
                 return;
@@ -63,9 +67,16 @@ namespace LogSystem
                 _ => "Unknown"
             };
 
+
             string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
+
+
             message = $"[{timestamp}][{logLevelString}] {message}";
+
+
             _logWriter.WriteLog(level, message);
+
+
 #if UNITY_EDITOR
             switch (level)
             {
@@ -107,17 +118,23 @@ namespace LogSystem
 
         public static void LogDisplay(string message)
         {
+            Profiler.BeginSample("Logger.LogDisplay");
             Log(LogLevel.Display, message);
+            Profiler.EndSample();
         }
 
         public static void LogWarning(string message)
         {
+            Profiler.BeginSample("Logger.LogWarning");
             Log(LogLevel.Warning, message);
+            Profiler.EndSample();
         }
 
         public static void LogError(string message)
         {
+            Profiler.BeginSample("Logger.LogError");
             Log(LogLevel.Error, message);
+            Profiler.EndSample();
         }
     }
 
