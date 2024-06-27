@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
 using UnityEngine.Profiling;
 using Debug = UnityEngine.Debug;
 
@@ -19,6 +20,8 @@ namespace LogSystem
     public static class Logger
     {
         private static LogWriter _logWriter;
+        private static DateTime _lastLogTime;
+        private static string _lastLogTimeString;
 
         // ReSharper disable once MemberCanBePrivate.Global
         public static LogLevel LogOutputLevel { get; private set; } = LogLevel.Display;
@@ -48,8 +51,6 @@ namespace LogSystem
         // ReSharper disable once MemberCanBePrivate.Global
         public static void Log(LogLevel level, string message)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             if (level > LogOutputLevel)
             {
                 return;
@@ -68,11 +69,17 @@ namespace LogSystem
             };
 
 
-            string timestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss:fff");
+            if (DateTime.Now - _lastLogTime > TimeSpan.FromMilliseconds(1))
+            {
+                _lastLogTime = DateTime.Now;
+                _lastLogTimeString = string.Format("{0:yyyy.MM.dd-HH.mm.ss:fff}", _lastLogTime);
+            }
 
+            string timestamp = _lastLogTimeString;
 
-            message = $"[{timestamp}][{logLevelString}] {message}";
-
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[").Append(timestamp).Append("][").Append(logLevelString).Append("] ").Append(message);
+            message = sb.ToString();
 
             _logWriter.WriteLog(level, message);
 

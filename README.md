@@ -10,6 +10,7 @@ Unity Log System是一个用于Unity游戏引擎的 ~~高性能、可配置（�
 - &#9745; 通过设置指定当前输出的Log级别
 - &#9745; 将log写入文件，包含时间戳和当前log级别，并且会在创建新log的时候备份旧文件
 - &#9745; 对常用的Log级别进行了函数包装，减轻使用负担
+- &#9745; 性能测试
 
 进行中的目标：
 
@@ -31,6 +32,12 @@ Logger.LogWarning("This is a warning log message.");
 // Error 日志
 Logger.LogError("This is an error log message.");
 ```
+
+## 性能表现
+
+Deep Profiler + Callstack 下的具体情况：
+
+![LogDataTime](image.png)
 
 --- 
 
