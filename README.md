@@ -15,7 +15,6 @@ Unity Log System是一个用于Unity游戏引擎的 ~~高性能、可配置（�
 进行中的目标：
 
 - &#9744; 根据游戏的构建版本（Editor、Development、Release）控制日志的输出。
-- &#9744; 日志写入的性能测试
 
 <!-- ## 安装
 
